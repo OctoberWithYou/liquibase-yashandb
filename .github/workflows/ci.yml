@@ -20,31 +20,6 @@ jobs:
           java-version: 17
           cache: maven
 
-      # YashanDB JDBC 不在 Maven Central，CI 用空壳包让编译通过
-      - name: Install YashanDB JDBC stub
-        run: |
-          mkdir -p stub/out
-          cat > stub/YasdbDriver.java <<'JAVA'
-          package com.yashandb.jdbc;
-          public class Driver implements java.sql.Driver {
-              public boolean acceptsURL(String u) { return false; }
-              public java.sql.Connection connect(String u, java.util.Properties p) { return null; }
-              public int getMajorVersion() { return 1; }
-              public int getMinorVersion() { return 9; }
-              public boolean jdbcCompliant() { return false; }
-              public java.util.logging.Logger getParentLogger() { return null; }
-              public java.sql.DriverPropertyInfo[] getPropertyInfo(String u, java.util.Properties p) { return new java.sql.DriverPropertyInfo[0]; }
-          }
-          JAVA
-          javac -d stub/out stub/YasdbDriver.java
-          jar cf yashandb-jdbc-1.9.24.jar -C stub/out .
-          mvn -B install:install-file \
-              -Dfile=yashandb-jdbc-1.9.24.jar \
-              -DgroupId=com.yashandb.jdbc \
-              -DartifactId=yashandb-jdbc \
-              -Dversion=1.9.24 \
-              -Dpackaging=jar
-
       - run: mvn -B -ntp clean package
 
       - uses: actions/upload-artifact@v4
