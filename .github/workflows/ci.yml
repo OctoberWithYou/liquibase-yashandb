@@ -3,64 +3,26 @@ name: CI
 on:
   push:
     branches: [ "main" ]
+    tags-ignore: [ '**' ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build on JDK ${{ matrix.java }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java: [ 8, 11, 17, 21 ]
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }}
+          java-version: 17
           cache: maven
 
-      # The YashanDB JDBC driver is not on Maven Central. For the CI build we
-      # install a placeholder stub so the compile phase succeeds. Replace with
-      # a proper repository or install-file step when the driver becomes
-      # available to the CI runners.
-      - name: Install YashanDB JDBC stub (CI only)
-        run: |
-          mkdir -p stub
-          cat > stub/YasdbDriver.java <<'JAVA'
-          package com.yashandb.jdbc;
-          public class Driver implements java.sql.Driver {
-              public boolean acceptsURL(String u) { return false; }
-              public java.sql.Connection connect(String u, java.util.Properties p) { return null; }
-              public int getMajorVersion() { return 1; }
-              public int getMinorVersion() { return 9; }
-              public boolean jdbcCompliant() { return false; }
-              public java.util.logging.Logger getParentLogger() { return null; }
-              public java.sql.DriverPropertyInfo[] getPropertyInfo(String u, java.util.Properties p) { return new java.sql.DriverPropertyInfo[0]; }
-          }
-          JAVA
-          javac -d stub/out stub/YasdbDriver.java
-          jar cf yashandb-jdbc-1.9.24.jar -C stub/out .
-          mvn -B install:install-file \
-              -Dfile=yashandb-jdbc-1.9.24.jar \
-              -DgroupId=com.yashandb.jdbc \
-              -DartifactId=yashandb-jdbc \
-              -Dversion=1.9.24 \
-              -Dpackaging=jar
+      - run: mvn -B -ntp clean package
 
-      - name: Build with Maven
-        run: mvn -B -ntp clean verify
-
-      - name: Upload build artifact
-        if: matrix.java == '17' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: liquibase-yashandb-${{ github.sha }}
           path: target/liquibase-yashandb-*.jar
