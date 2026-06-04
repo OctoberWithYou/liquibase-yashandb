@@ -31,7 +31,7 @@ jobs:
 
       - name: Install YashanDB JDBC stub (CI only)
         run: |
-          mkdir -p stub
+          mkdir -p stub/out
           cat > stub/YasdbDriver.java <<'JAVA'
           package com.yashandb.jdbc;
           public class Driver implements java.sql.Driver {
