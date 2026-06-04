@@ -1,0 +1,4 @@
+com.yashandb.liquibase.sqlgenerator.YashanDbCreateDatabaseChangeLogTableGenerator
+com.yashandb.liquibase.sqlgenerator.YashanDbCreateDatabaseChangeLogLockTableGenerator
+com.yashandb.liquibase.sqlgenerator.YashanDbSetNullableGenerator
+com.yashandb.liquibase.sqlgenerator.YashanDbModifyDataTypeGenerator

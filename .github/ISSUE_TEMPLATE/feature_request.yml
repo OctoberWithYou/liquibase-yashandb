@@ -1,0 +1,34 @@
+---
+name: Feature request
+about: Suggest a new capability for the connector
+title: "[feat] "
+labels: ["enhancement"]
+assignees: []
+---
+
+## Is your feature request related to a problem?
+
+A clear and concise description of what the problem is. Ex. I'm always frustrated when […]
+
+## Describe the solution you'd like
+
+A clear and concise description of what you want to happen.
+
+## Describe alternatives you've considered
+
+A clear and concise description of any alternative solutions or features you've considered.
+
+## Example usage
+
+```xml
+<!-- how the new feature would look in a changelog -->
+```
+
+## YashanDB reference
+
+Link to YashanDB documentation that describes the underlying SQL syntax or behavior:
+(e.g. `https://doc.yashandb.com/...`)
+
+## Additional context
+
+Add any other context or screenshots about the feature request here.

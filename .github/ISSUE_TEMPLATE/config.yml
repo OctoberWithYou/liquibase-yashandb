@@ -1,0 +1,12 @@
+---
+name: liquibase-yashandb connector
+description: >-
+  Issue templates for the YashanDB Liquibase connector (com.yashandb:liquibase-yashandb).
+blank_issues_enabled: false
+contact_links:
+  - name: YashanDB Community
+    url: https://www.yashandb.com/
+    about: Product documentation and community forums.
+  - name: Liquibase Documentation
+    url: https://docs.liquibase.com/
+    about: General Liquibase usage questions.

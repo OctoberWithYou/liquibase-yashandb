@@ -1,0 +1,2 @@
+com.yashandb.liquibase.snapshot.YashanDbTableSnapshotGenerator
+com.yashandb.liquibase.snapshot.YashanDbIgnoreViewSnapshotGenerator

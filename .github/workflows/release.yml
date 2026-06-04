@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_CENTRAL_TOKEN
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Install YashanDB JDBC stub (CI only)
+        run: |
+          mkdir -p stub
+          cat > stub/YasdbDriver.java <<'JAVA'
+          package com.yashandb.jdbc;
+          public class Driver implements java.sql.Driver {
+              public boolean acceptsURL(String u) { return false; }
+              public java.sql.Connection connect(String u, java.util.Properties p) { return null; }
+              public int getMajorVersion() { return 1; }
+              public int getMinorVersion() { return 9; }
+              public boolean jdbcCompliant() { return false; }
+              public java.util.logging.Logger getParentLogger() { return null; }
+              public java.sql.DriverPropertyInfo[] getPropertyInfo(String u, java.util.Properties p) { return new java.sql.DriverPropertyInfo[0]; }
+          }
+          JAVA
+          javac -d stub/out stub/YasdbDriver.java
+          jar cf yashandb-jdbc-1.9.24.jar -C stub/out .
+          mvn -B install:install-file \
+              -Dfile=yashandb-jdbc-1.9.24.jar \
+              -DgroupId=com.yashandb.jdbc \
+              -DartifactId=yashandb-jdbc \
+              -Dversion=1.9.24 \
+              -Dpackaging=jar
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set release version in pom.xml
+        run: mvn -B versions:set -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+
+      - name: Build & deploy to Maven Central
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_CENTRAL_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: |
+          mvn -B -ntp -P release \
+              -DskipTests \
+              clean deploy
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: liquibase-yashandb ${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            target/liquibase-yashandb-${{ steps.version.outputs.version }}.jar
+            target/liquibase-yashandb-${{ steps.version.outputs.version }}-sources.jar
+            target/liquibase-yashandb-${{ steps.version.outputs.version }}-javadoc.jar

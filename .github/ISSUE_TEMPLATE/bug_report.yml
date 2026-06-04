@@ -1,0 +1,58 @@
+---
+name: Bug report
+about: Report a problem with the YashanDB Liquibase connector
+title: "[bug] "
+labels: ["bug"]
+assignees: []
+---
+
+## Describe the bug
+
+A clear and concise description of what the bug is.
+
+## Environment
+
+- `liquibase-yashandb` version: (e.g. `1.0.0`)
+- Liquibase version: (e.g. `4.17.1`)
+- YashanDB server version: (`select * from v$version;`)
+- YashanDB JDBC driver version:
+- Java version: (`java -version`)
+- OS: (e.g. Ubuntu 22.04 / Windows 11)
+
+## Changelog to reproduce
+
+```xml
+<!-- paste the smallest changelog that reproduces the issue -->
+```
+
+## `liquibase.properties`
+
+```properties
+# paste the relevant properties (redact passwords)
+```
+
+## Steps to reproduce
+
+1. …
+2. …
+3. …
+
+## Expected behavior
+
+A clear and concise description of what you expected to happen.
+
+## Actual behavior / error output
+
+```
+paste the full stack trace or Liquibase error output here
+```
+
+## Generated SQL (if relevant)
+
+```sql
+-- the SQL Liquibase emitted, and what you expected instead
+```
+
+## Additional context
+
+Add any other context, logs, or screenshots here.
